@@ -2,16 +2,19 @@ import { Col, Table, Slider } from 'antd'
 const { Column } = Table;
 
 export enum PEQOptions {
-    key = "key",
+    type = "type",
     freq = "freq",
     gain = "gain",
-    q = "q"
+    q = "q",
+    key = "key"
 }
 export interface PEQ {
     [PEQOptions.key]: number,
     [PEQOptions.freq]: number,
     [PEQOptions.gain]: number,
-    [PEQOptions.q]: number
+    [PEQOptions.q]: number,
+    [PEQOptions.type]?: string,
+
 }
 
 const PEQDisplay = ({ data }: { data: PEQ[] }) => {

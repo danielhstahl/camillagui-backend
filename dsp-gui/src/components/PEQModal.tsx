@@ -12,6 +12,7 @@ export const DEFAULT_PEQ = {
     q: 1,
     gain: 0,
     freq: 1000,
+    type: "Peaking",
     key: 1
 }
 type OnChange = (data: PEQ[]) => void
