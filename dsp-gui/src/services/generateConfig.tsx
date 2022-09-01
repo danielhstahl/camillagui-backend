@@ -107,7 +107,7 @@ interface PipelineMixer {
     type: PipelineType
 }
 
-interface Config {
+export interface Config {
     devices: Devices,
     filters: { [name: string]: PeakingFilter | SubwooferFilter | DistanceFilter },
     mixers: { [name: string]: Mixer },
@@ -176,22 +176,32 @@ const getSpeakerTypes = (result: { [name: string]: SpeakerData }) => {
 
 const convertSubwooferMixer: (result: { [name: string]: SpeakerData }) => { [name: string]: Mixer } = (result: { [name: string]: SpeakerData }) => {
     const { satellites, subwoofers } = getSpeakerTypes(result)
+    const minSubIndex = Math.min(...subwoofers.map(v => v.speakerIndex))
     return {
         subwoofer_mix: {
             channels: {
-                in: satellites.length,
-                out: subwoofers.length
+                in: satellites.length + (subwoofers.length > 0 ? 1 : 0),
+                out: satellites.length + subwoofers.length
             },
-            mapping: subwoofers.map(v => ({
+            mapping: [...satellites.map(v => ({
                 dest: v.speakerIndex,
                 mute: false,
-                sources: satellites.map(v => ({
+                sources: [{
                     channel: v.speakerIndex,
                     gain: 0,
                     inverted: false,
                     mute: false
+                }]
+            })), ...subwoofers.map(v => ({
+                dest: v.speakerIndex,
+                mute: false,
+                sources: satellites.map(v => ({
+                    channel: minSubIndex,
+                    gain: 0,
+                    inverted: false,
+                    mute: false
                 }))
-            }))
+            }))]
         }
     }
 }
@@ -202,7 +212,7 @@ const convertAllChannelMixer: (result: { [name: string]: SpeakerData }) => { [na
     return {
         all_channel_mix: {
             channels: {
-                in: satellites.length + (subwoofers.length > 0 ? 1 : 0),
+                in: satellites.length + subwoofers.length,
                 out: satellites.length + subwoofers.length
             },
             mapping: [...satellites.map(v => ({

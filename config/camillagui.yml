@@ -1,12 +1,15 @@
 ---
-camilla_host: "0.0.0.0"
+camilla_host: "127.0.0.1"
 camilla_port: 1234
 port: 5000
-config_dir: "~/camilladsp/configs"
-coeff_dir: "~/camilladsp/coeffs"
-default_config: "~/camilladsp/default_config.yml"
-active_config: "~/camilladsp/active_config.yml"
-update_symlink: true
+config_dir: "~/Documents/code/third_party/camilla/configs"
+coeff_dir: "~/Documents/code/third_party/camilla/coeffs"
+default_config: "./default_config.yml"
+active_config: "./active_config.yml"
+active_config_txt: "./active_config.txt"
+log_file: "./camilladsp.log"
+update_config_symlink: false
+update_config_txt: false
 on_set_active_config: null
 on_get_active_config: null
 supported_capture_types: null

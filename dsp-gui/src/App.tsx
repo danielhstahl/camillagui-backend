@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import './App.css';
 import AppSkeleton from './ui-skeleton/AppSkeleton';
 import SpeakerConfig, { SpeakerConfigOptions, SpeakerData } from './components/SpeakerConfig'
 import { PEQ } from './components/PEQ'
-import { Row } from 'antd';
+import { Button, Row } from 'antd';
 import { convertStateToConfig } from './services/generateConfig';
+import { submitConfig } from './services/api';
 //index maps to the hardware speaker index
 const getDefaultSpeakerOptions = (index: number) => ({
   [SpeakerConfigOptions.crossover]: 80,
@@ -38,9 +39,9 @@ function App() {
       }))
     }
   }
-  useEffect(() => {
+  /*useEffect(() => {
     console.log(convertStateToConfig(speakerOptions))
-  }, [speakerOptions])
+  }, [speakerOptions])*/
   return (
     <div className="App">
       <AppSkeleton >
@@ -48,8 +49,12 @@ function App() {
           {Object.entries(speakerOptions).map(([speakerTitle, options]) => {
             return <SpeakerConfig key={speakerTitle} speakerTitle={speakerTitle} speakerData={options} onChangeSpeakerData={onChange(speakerTitle)} />
           })}
-
         </Row>
+        <Button onClick={() => {
+          const config = convertStateToConfig(speakerOptions)
+          console.log(config)
+          submitConfig(config)
+        }}>Submit</Button>
       </AppSkeleton>
     </div>
   );
