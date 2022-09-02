@@ -29,7 +29,7 @@ const SpeakerConfig = ({ speakerTitle, speakerData, onChangeSpeakerData }: { spe
             <Card title={speakerTitle} bordered={false} extra={
                 <Checkbox checked={isSubwoofer} onChange={() => onChangeSpeakerData(speakerData, SpeakerConfigOptions.isSubwoofer)(!isSubwoofer)}>Is Subwoofer</Checkbox>
             } >
-                <FineGrainSlider label="Distance (ft)" onChange={onChangeSpeakerData(speakerData, SpeakerConfigOptions.distance)} value={speakerData[SpeakerConfigOptions.distance]} max={30} />
+                <FineGrainSlider label="Distance (mm)" onChange={onChangeSpeakerData(speakerData, SpeakerConfigOptions.distance)} value={speakerData[SpeakerConfigOptions.distance]} max={10000} />
                 <FineGrainSlider label="Gain" onChange={onChangeSpeakerData(speakerData, SpeakerConfigOptions.gain)} value={speakerData[SpeakerConfigOptions.gain]} min={-10} max={10} />
                 {!isSubwoofer && <FineGrainSlider label="Crossover" onChange={onChangeSpeakerData(speakerData, SpeakerConfigOptions.crossover)} value={speakerData[SpeakerConfigOptions.crossover]} min={30} max={150} stepSize={1} />}
 

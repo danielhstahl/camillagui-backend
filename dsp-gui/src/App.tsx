@@ -1,15 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 import AppSkeleton from './ui-skeleton/AppSkeleton';
 import SpeakerConfig, { SpeakerConfigOptions, SpeakerData } from './components/SpeakerConfig'
 import { PEQ } from './components/PEQ'
 import { Button, Row } from 'antd';
-import { convertStateToConfig } from './services/generateConfig';
-import { submitConfig } from './services/api';
+import { convertStateToConfig, convertConfigToState } from './services/configMapper';
+import { submitConfig, loadConfig } from './services/api';
 //index maps to the hardware speaker index
 const getDefaultSpeakerOptions = (index: number) => ({
   [SpeakerConfigOptions.crossover]: 80,
-  [SpeakerConfigOptions.distance]: 10,
+  [SpeakerConfigOptions.distance]: 2000, //2 meters
   [SpeakerConfigOptions.isSubwoofer]: false,
   [SpeakerConfigOptions.peq]: [],
   [SpeakerConfigOptions.index]: index,
@@ -27,7 +27,7 @@ const DEFAULT_SPEAKERS = {
 }
 //todo, allow speaker title edits
 function App() {
-  const [speakerOptions, setSpeakerOptions] = useState(DEFAULT_SPEAKERS)
+  const [speakerOptions, setSpeakerOptions] = useState<{ [name: string]: SpeakerData }>(DEFAULT_SPEAKERS)
   const onChange = (speakerKey: string) => {
     return (data: SpeakerData, speakerConfigKey: SpeakerConfigOptions) => (value: PEQ[] | number | boolean) => {
       setSpeakerOptions(currState => ({
@@ -39,9 +39,9 @@ function App() {
       }))
     }
   }
-  /*useEffect(() => {
-    console.log(convertStateToConfig(speakerOptions))
-  }, [speakerOptions])*/
+  useEffect(() => {
+    loadConfig().then(convertConfigToState).then(setSpeakerOptions)
+  }, [])
   return (
     <div className="App">
       <AppSkeleton >
