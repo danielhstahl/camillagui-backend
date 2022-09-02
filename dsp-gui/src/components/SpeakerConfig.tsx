@@ -3,7 +3,7 @@ import FineGrainSlider from './FineGrainSlider'
 import PEQDisplay, { PEQ } from './PEQ';
 import PEQModal from './PEQModal';
 export enum SpeakerConfigOptions {
-    distance = "distance",
+    delay = "delay",
     crossover = "crossover",
     peq = "peq",
     isSubwoofer = "isSubwoofer",
@@ -12,7 +12,7 @@ export enum SpeakerConfigOptions {
 }
 
 export interface SpeakerData {
-    [SpeakerConfigOptions.distance]: number,
+    [SpeakerConfigOptions.delay]: number,
     [SpeakerConfigOptions.gain]: number,
     [SpeakerConfigOptions.crossover]: number,
     [SpeakerConfigOptions.peq]: PEQ[],
@@ -29,7 +29,7 @@ const SpeakerConfig = ({ speakerTitle, speakerData, onChangeSpeakerData }: { spe
             <Card title={speakerTitle} bordered={false} extra={
                 <Checkbox checked={isSubwoofer} onChange={() => onChangeSpeakerData(speakerData, SpeakerConfigOptions.isSubwoofer)(!isSubwoofer)}>Is Subwoofer</Checkbox>
             } >
-                <FineGrainSlider label="Distance (mm)" onChange={onChangeSpeakerData(speakerData, SpeakerConfigOptions.distance)} value={speakerData[SpeakerConfigOptions.distance]} max={10000} />
+                <FineGrainSlider label="Delay (ms)" onChange={onChangeSpeakerData(speakerData, SpeakerConfigOptions.delay)} value={speakerData[SpeakerConfigOptions.delay]} max={30} />
                 <FineGrainSlider label="Gain" onChange={onChangeSpeakerData(speakerData, SpeakerConfigOptions.gain)} value={speakerData[SpeakerConfigOptions.gain]} min={-10} max={10} />
                 {!isSubwoofer && <FineGrainSlider label="Crossover" onChange={onChangeSpeakerData(speakerData, SpeakerConfigOptions.crossover)} value={speakerData[SpeakerConfigOptions.crossover]} min={30} max={150} stepSize={1} />}
 

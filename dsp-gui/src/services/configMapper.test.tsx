@@ -7,16 +7,15 @@ import {
     PipelineType,
     FilterType
 } from './configMapper'
-import SpeakerConfig, { SpeakerConfigOptions, SpeakerData } from '../components/SpeakerConfig'
+import { SpeakerConfigOptions } from '../components/SpeakerConfig'
 import { PEQOptions } from '../components/PEQ'
-import jest from 'jest'
 
 describe("stateToConfig", () => {
     it("generates config with no peq", () => {
         const speakers = {
             "speak1": {
                 [SpeakerConfigOptions.crossover]: 80,
-                [SpeakerConfigOptions.distance]: 2000, //2 meters
+                [SpeakerConfigOptions.delay]: 2000, //2 meters
                 [SpeakerConfigOptions.isSubwoofer]: false,
                 [SpeakerConfigOptions.peq]: [],
                 [SpeakerConfigOptions.index]: 0,
@@ -24,7 +23,7 @@ describe("stateToConfig", () => {
             },
             "speak2": {
                 [SpeakerConfigOptions.crossover]: 80,
-                [SpeakerConfigOptions.distance]: 2000, //2 meters
+                [SpeakerConfigOptions.delay]: 2000, //2 meters
                 [SpeakerConfigOptions.isSubwoofer]: false,
                 [SpeakerConfigOptions.peq]: [],
                 [SpeakerConfigOptions.index]: 1,
@@ -38,7 +37,7 @@ describe("stateToConfig", () => {
         const speakers = {
             "speak1": {
                 [SpeakerConfigOptions.crossover]: 80,
-                [SpeakerConfigOptions.distance]: 2000, //2 meters
+                [SpeakerConfigOptions.delay]: 2000, //2 meters
                 [SpeakerConfigOptions.isSubwoofer]: false,
                 [SpeakerConfigOptions.peq]: [
                     {
@@ -53,7 +52,7 @@ describe("stateToConfig", () => {
             },
             "speak2": {
                 [SpeakerConfigOptions.crossover]: 80,
-                [SpeakerConfigOptions.distance]: 2000, //2 meters
+                [SpeakerConfigOptions.delay]: 2000, //2 meters
                 [SpeakerConfigOptions.isSubwoofer]: false,
                 [SpeakerConfigOptions.peq]: [
                     {
@@ -537,7 +536,7 @@ describe("configToState", () => {
         const speakers = {
             "speak1": {
                 [SpeakerConfigOptions.crossover]: 80,
-                [SpeakerConfigOptions.distance]: 2000, //2 meters
+                [SpeakerConfigOptions.delay]: 2000, //2 meters
                 [SpeakerConfigOptions.isSubwoofer]: false,
                 [SpeakerConfigOptions.peq]: [
                     {
@@ -553,7 +552,7 @@ describe("configToState", () => {
             },
             "speak2": {
                 [SpeakerConfigOptions.crossover]: 80,
-                [SpeakerConfigOptions.distance]: 2000, //2 meters
+                [SpeakerConfigOptions.delay]: 2000, //2 meters
                 [SpeakerConfigOptions.isSubwoofer]: false,
                 [SpeakerConfigOptions.peq]: [
                     {

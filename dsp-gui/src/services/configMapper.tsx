@@ -107,15 +107,16 @@ interface PipelineMixer {
     type: PipelineType
 }
 
+/*
 interface Mixers {
     subwoofer_mix: Mixer,
     all_channel_mix: Mixer
-}
+}*/
 
 export interface Config {
     devices: Devices,
     filters: { [name: string]: PeakingFilter | SubwooferFilter | DistanceFilter },
-    mixers: Mixers,
+    mixers: { [name: string]: Mixer },
     pipeline: (PipelineFilter | PipelineMixer)[]
 }
 
@@ -150,13 +151,13 @@ const convertCrossoverToFilters: (speakerName: string, crossover: number) => { [
 
 //const SPEED_OF_SOUND_IN_FEET_PER_MS = 1.087
 
-const convertDistanceToFilters: (speakerName: string, distance: number) => { [name: string]: DistanceFilter } = (speakerName: string, distance: number) => {
+const convertDistanceToFilters: (speakerName: string, delay: number) => { [name: string]: DistanceFilter } = (speakerName: string, delay: number) => {
     return {
         [`${speakerName}_delay`]: {
             type: FilterType.Delay,
             parameters: {
-                delay: distance, //(distance - minDistance) / SPEED_OF_SOUND_IN_FEET_PER_MS,
-                unit: "mm" //millimeters
+                delay, //(distance - minDistance) / SPEED_OF_SOUND_IN_FEET_PER_MS,
+                unit: "ms" //millimeters
             }
         }
     }
@@ -178,65 +179,68 @@ const getSpeakerTypes = (result: { [name: string]: SpeakerData }) => {
     return { satellites: speakerIndeces, subwoofers: subwooferIndeces }
 }
 
-const convertSubwooferMixer: (result: { [name: string]: SpeakerData }) => Mixer = (result: { [name: string]: SpeakerData }) => {
+const convertSubwooferMixer: (result: { [name: string]: SpeakerData }) => { [name: string]: Mixer } = (result: { [name: string]: SpeakerData }) => {
     const { satellites, subwoofers } = getSpeakerTypes(result)
     const minSubIndex = Math.min(...subwoofers.map(v => v.speakerIndex))
     return {
-        channels: {
-            in: satellites.length + (subwoofers.length > 0 ? 1 : 0),
-            out: satellites.length + subwoofers.length
-        },
-        mapping: [...satellites.map(v => ({
-            dest: v.speakerIndex,
-            mute: false,
-            sources: [{
-                channel: v.speakerIndex,
-                gain: 0,
-                inverted: false,
-                mute: false
-            }]
-        })), ...subwoofers.map(v => ({
-            dest: v.speakerIndex,
-            mute: false,
-            sources: satellites.map(v => ({
-                channel: minSubIndex,
-                gain: 0,
-                inverted: false,
-                mute: false
-            }))
-        }))]
+        subwoofer_mix: {
+            channels: {
+                in: satellites.length + (subwoofers.length > 0 ? 1 : 0),
+                out: satellites.length + subwoofers.length
+            },
+            mapping: [...satellites.map(v => ({
+                dest: v.speakerIndex,
+                mute: false,
+                sources: [{
+                    channel: v.speakerIndex,
+                    gain: 0,
+                    inverted: false,
+                    mute: false
+                }]
+            })), ...subwoofers.map(v => ({
+                dest: v.speakerIndex,
+                mute: false,
+                sources: satellites.map(v => ({
+                    channel: minSubIndex,
+                    gain: 0,
+                    inverted: false,
+                    mute: false
+                }))
+            }))]
+        }
     }
 }
 
 
-const convertAllChannelMixer: (result: { [name: string]: SpeakerData }) => Mixer = (result: { [name: string]: SpeakerData }) => {
+const convertAllChannelMixer: (result: { [name: string]: SpeakerData }) => { [name: string]: Mixer } = (result: { [name: string]: SpeakerData }) => {
     const { satellites, subwoofers } = getSpeakerTypes(result)
     const minSubIndex = Math.min(...subwoofers.map(v => v.speakerIndex))
     return {
-
-        channels: {
-            in: satellites.length + subwoofers.length,
-            out: satellites.length + subwoofers.length
-        },
-        mapping: [...satellites.map(v => ({
-            dest: result[v.speakerName][SpeakerConfigOptions.index],
-            mute: false,
-            sources: [{
-                channel: result[v.speakerName][SpeakerConfigOptions.index],
-                gain: result[v.speakerName][SpeakerConfigOptions.gain],
-                inverted: false,
-                mute: false
-            }]
-        })), ...subwoofers.map(v => ({
-            dest: result[v.speakerName][SpeakerConfigOptions.index],
-            mute: false,
-            sources: [{
-                channel: minSubIndex,
-                gain: result[v.speakerName][SpeakerConfigOptions.gain],
-                inverted: false,
-                mute: false
-            }]
-        }))]
+        all_channel_mix: {
+            channels: {
+                in: satellites.length + subwoofers.length,
+                out: satellites.length + subwoofers.length
+            },
+            mapping: [...satellites.map(v => ({
+                dest: result[v.speakerName][SpeakerConfigOptions.index],
+                mute: false,
+                sources: [{
+                    channel: result[v.speakerName][SpeakerConfigOptions.index],
+                    gain: result[v.speakerName][SpeakerConfigOptions.gain],
+                    inverted: false,
+                    mute: false
+                }]
+            })), ...subwoofers.map(v => ({
+                dest: result[v.speakerName][SpeakerConfigOptions.index],
+                mute: false,
+                sources: [{
+                    channel: minSubIndex,
+                    gain: result[v.speakerName][SpeakerConfigOptions.gain],
+                    inverted: false,
+                    mute: false
+                }]
+            }))]
+        }
     }
 
 }
@@ -255,7 +259,7 @@ const convertPipeline: (result: { [name: string]: SpeakerData }) => (PipelineFil
     const distancePipeline: PipelineFilter[] = [...satellites, ...subwoofers].map(({ speakerName, speakerIndex }) => {
         return {
             channel: speakerIndex,
-            names: Object.keys(convertDistanceToFilters(speakerName, result[speakerName][SpeakerConfigOptions.distance])),
+            names: Object.keys(convertDistanceToFilters(speakerName, result[speakerName][SpeakerConfigOptions.delay])),
             type: PipelineType.Filter
         }
     })
@@ -282,7 +286,7 @@ const convertAllFilters: (result: { [name: string]: SpeakerData }) => { [name: s
         return { ...aggr, ...convertPeqToFilters(curr.speakerName, result[curr.speakerName][SpeakerConfigOptions.peq]) }
     }, {})
     const distanceFilter = [...satellites, ...subwoofers].reduce((aggr, curr) => {
-        return { ...aggr, ...convertDistanceToFilters(curr.speakerName, result[curr.speakerName][SpeakerConfigOptions.distance]) }
+        return { ...aggr, ...convertDistanceToFilters(curr.speakerName, result[curr.speakerName][SpeakerConfigOptions.delay]) }
     }, {})
     const crossoverFilter = satellites.reduce((aggr, curr) => {
         return { ...aggr, ...convertCrossoverToFilters(curr.speakerName, result[curr.speakerName][SpeakerConfigOptions.crossover]) }
@@ -291,8 +295,8 @@ const convertAllFilters: (result: { [name: string]: SpeakerData }) => { [name: s
     return { ...peqFilter, ...distanceFilter, ...crossoverFilter }
 
 }
-const convertAllMixers: (result: { [name: string]: SpeakerData }) => Mixers = (result: { [name: string]: SpeakerData }) => {
-    return { subwoofer_mix: convertSubwooferMixer(result), all_channel_mix: convertAllChannelMixer(result) }
+const convertAllMixers: (result: { [name: string]: SpeakerData }) => { [name: string]: Mixer } = (result: { [name: string]: SpeakerData }) => {
+    return { ...convertSubwooferMixer(result), ...convertAllChannelMixer(result) }
 }
 
 const getDevice = (result: { [name: string]: SpeakerData }) => {
@@ -347,7 +351,9 @@ interface SpeakerAndIndex {
 }
 const getSubwoofersFromConfig: (config: Config, speakerNameAndIndex: SpeakerAndIndex[]) => { [name: string]: boolean } = (config: Config, speakerNameAndIndex: SpeakerAndIndex[]) => {
     const subwooferIndeces = config.mixers.subwoofer_mix.mapping.filter(v => v.sources.length > 1).map(v => v.dest)
-    return speakerNameAndIndex.reduce((agg, v) => ({ ...agg, [v.speakerName]: v.speakerIndex in subwooferIndeces }), {})
+    console.log(subwooferIndeces)
+    console.log(speakerNameAndIndex)
+    return speakerNameAndIndex.reduce((agg, v) => ({ ...agg, [v.speakerName]: subwooferIndeces.includes(v.speakerIndex) }), {})
 }
 
 const getPeqFromConfig: (config: Config, speakerNameAndIndex: SpeakerAndIndex[]) => { [name: string]: PEQ[] } = (config: Config, speakerNameAndIndex: SpeakerAndIndex[]) => {
@@ -415,7 +421,7 @@ export const convertConfigToState: (config: Config) => { [name: string]: Speaker
         return {
             ...agg, [cur.speakerName]: {
                 [SpeakerConfigOptions.index]: cur.speakerIndex,
-                [SpeakerConfigOptions.distance]: distances[cur.speakerName],
+                [SpeakerConfigOptions.delay]: distances[cur.speakerName],
                 [SpeakerConfigOptions.gain]: gains[cur.speakerName],
                 [SpeakerConfigOptions.peq]: peqs[cur.speakerName],
                 [SpeakerConfigOptions.isSubwoofer]: subwoofers[cur.speakerName],
