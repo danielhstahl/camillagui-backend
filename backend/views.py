@@ -1,5 +1,5 @@
 from os.path import isfile
-
+import subprocess
 import yaml
 from aiohttp import web
 from camilladsp import CamillaError
@@ -257,6 +257,18 @@ async def validate_config(request):
     if len(errors) > 0:
         return web.json_response(status=500, data=errors)
     return web.Response(text="OK")
+
+async def get_audio_devices_linux(request):
+    devices=[]
+    for i in range(4):
+        try:
+            with open(f"/proc/asound/card/{i}/id", "r") as f:
+                id=f.read().strip()
+                devices.append({"id": id, "name": subprocess.run("aplay -l | awk -F'[' '/card {}/{print $2}' | cut -d']' -f1".format(i), capture_output=True)})
+        except:
+            print("file does not exist")
+    return web.json_response(devices)
+
 
 
 async def store_coeffs(request):

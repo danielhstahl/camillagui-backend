@@ -20,6 +20,25 @@ export interface SpeakerData {
     [SpeakerConfigOptions.index]: number,
 }
 
+//index maps to the hardware speaker index
+const getDefaultSpeakerOptions = (index: number) => ({
+    [SpeakerConfigOptions.crossover]: 80,
+    [SpeakerConfigOptions.delay]: 5,
+    [SpeakerConfigOptions.isSubwoofer]: false,
+    [SpeakerConfigOptions.peq]: [],
+    [SpeakerConfigOptions.index]: index,
+    [SpeakerConfigOptions.gain]: 0,
+})
+
+export const DEFAULT_SPEAKERS = {
+    "Left Speaker": getDefaultSpeakerOptions(0),
+    "Right Speaker": getDefaultSpeakerOptions(1),
+    "Center Speaker": getDefaultSpeakerOptions(2),
+    "Surround Left": getDefaultSpeakerOptions(3),
+    "Surround Right": getDefaultSpeakerOptions(4),
+    "Subwoofer 1": { ...getDefaultSpeakerOptions(5), [SpeakerConfigOptions.isSubwoofer]: true },
+    "Subwoofer 2": { ...getDefaultSpeakerOptions(6), [SpeakerConfigOptions.isSubwoofer]: true },
+}
 export type SpeakerChange = (data: SpeakerData, key: SpeakerConfigOptions) => (value: number | boolean | PEQ[]) => void
 
 const SpeakerConfig = ({ speakerTitle, speakerData, onChangeSpeakerData }: { speakerTitle: string, speakerData: SpeakerData, onChangeSpeakerData: SpeakerChange }) => {

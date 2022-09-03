@@ -2,10 +2,14 @@
 import { Button, Row, Col, Select, Modal, Input } from 'antd';
 import { useEffect, useState } from 'react';
 import { getExistingConfigs } from '../services/api';
+import { SpeakerData, DEFAULT_SPEAKERS } from './SpeakerConfig';
 const { Option } = Select;
 
 //TODO!  Add submit and possibly selection on create
-const SelectSpeakerConfig = ({ onSelect }: { onSelect: (file: string) => void }) => {
+const SelectSpeakerConfig = ({ onSelect, onSubmit }: {
+    onSelect: (file: string) => void,
+    onSubmit: (speakerData: { [name: string]: SpeakerData }, configFile: string) => void
+}) => {
     const [configFiles, setConfigFiles] = useState<string[]>([])
 
     useEffect(() => {
@@ -26,8 +30,10 @@ const SelectSpeakerConfig = ({ onSelect }: { onSelect: (file: string) => void })
 
         </Col>
         <Modal title="New Configuration" visible={isModalVisible} onOk={() => {
-            setConfigFiles(curr => [...curr, newConfigName])
+            const configFile = `${newConfigName}.yaml`
+            setConfigFiles(curr => [...curr, configFile])
             setNewConfigName("")
+            onSubmit(DEFAULT_SPEAKERS, configFile)
             setIsModalVisible(false)
         }} onCancel={() => {
             setNewConfigName("")

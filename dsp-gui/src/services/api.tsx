@@ -29,3 +29,5 @@ export const getCamillaConfig: () => Promise<Config> = () => fetch(
     {
         method: "GET"
     }).then(r => r.json())
+
+export const getAudioDevices = () => fetch("/api/getaudiodevices").then(r => r.json())
