@@ -262,7 +262,7 @@ async def get_audio_devices_linux(request):
     devices=[]
     for i in range(4):
         try:
-            with open(f"/proc/asound/card/{i}/id", "r") as f:
+            with open(f"/proc/asound/card{i}/id", "r") as f:
                 id=f.read().strip()
                 devices.append({"id": id, "name": subprocess.run("aplay -l | awk -F'[' '/card {}/{print $2}' | cut -d']' -f1".format(i), capture_output=True)})
         except:
