@@ -10,7 +10,18 @@ export const submitConfig = (config: Config, filename: string) => fetch(
             filename
         })
     }).then(r => r.text()).then(result => {
-        if (result !== "OK") {
+        if (result.toLowerCase() !== "ok") {
+            throw new Error(result)
+        }
+    })
+
+export const deleteConfig = (filename: string) => fetch(
+    "/api/deleteconfigs",
+    {
+        method: "POST",
+        body: JSON.stringify([filename])
+    }).then(r => r.text()).then(result => {
+        if (result.toLowerCase() !== "ok") {
             throw new Error(result)
         }
     })
