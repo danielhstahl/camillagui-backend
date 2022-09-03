@@ -265,8 +265,8 @@ async def get_audio_devices_linux(request):
             with open(f"/proc/asound/card{i}/id", "r") as f:
                 id=f.read().strip()
                 devices.append({"id": id, "name": subprocess.run("aplay -l | awk -F'[' '/card {}/{print $2}' | cut -d']' -f1".format(i), capture_output=True)})
-        except:
-            print("file does not exist")
+        except Exception as e: 
+            print(e)
     return web.json_response(devices)
 
 
