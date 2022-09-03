@@ -264,7 +264,8 @@ async def get_audio_devices_linux(request):
         try:
             with open(f"/proc/asound/card{i}/id", "r") as f:
                 id=f.read().strip()
-                devices.append({"id": id, "name": subprocess.run("aplay -l | awk -F'[' '/card {}/{print $2}' | cut -d']' -f1".format(i), capture_output=True)})
+
+                devices.append({"id": id, "name": subprocess.run("aplay -l | awk -F'[' '/card {}".format(i)+"/{print $2}' | cut -d']' -f1", capture_output=True, shell=True).stdout.strip().decode("utf-8") })
         except Exception as e: 
             print(e)
     return web.json_response(devices)
