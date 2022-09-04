@@ -5,7 +5,6 @@ import { getExistingConfigs } from '../services/api';
 import { SpeakerData, DEFAULT_SPEAKERS } from './SpeakerConfig';
 const { Option } = Select;
 
-//TODO!  Add submit and possibly selection on create
 const SelectSpeakerConfig = ({ configFile, onSelect, onSubmit, onDelete }: {
     onSelect: (file: string) => void,
     onSubmit: (speakerData: { [name: string]: SpeakerData }, configFile: string) => void,

@@ -107,12 +107,6 @@ interface PipelineMixer {
     type: PipelineType
 }
 
-/*
-interface Mixers {
-    subwoofer_mix: Mixer,
-    all_channel_mix: Mixer
-}*/
-
 export interface Config {
     devices: Devices,
     filters: { [name: string]: PeakingFilter | SubwooferFilter | DistanceFilter },
@@ -306,7 +300,7 @@ const getDevice = (result: { [name: string]: SpeakerData }) => {
         capture: {
             avoid_blocking_read: false,
             channels: satellites.length + (subwoofers.length > 0 ? 1 : 0), //need only 1 subwoofer input
-            device: "hw:0", ///TODO!! make this generated from hardware itself
+            device: "hw:Loopback,0,0", //I think this is consisten across devices? https://henquist.github.io/0.6.2/backend_alsa.html#find-name-of-device
             format: DeviceFormat.S32LE,
             retry_on_error: false,
             type: DeviceType.Alsa,
@@ -317,7 +311,7 @@ const getDevice = (result: { [name: string]: SpeakerData }) => {
         enable_resampling: true,
         playback: {
             channels: Object.keys(result).length,
-            device: "hw:0",///TODO!! make this generated from hardware itself
+            device: "hw:b1",/// hw:{id} from dropdwn
             format: DeviceFormat.S32LE,
             type: DeviceType.Alsa,
         },
